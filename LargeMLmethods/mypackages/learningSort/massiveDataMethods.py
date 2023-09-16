@@ -106,7 +106,7 @@ class WarmUpLearningRateScheduler(keras.callbacks.Callback):
                 print('\nBatch %05d: WarmUpLearningRateScheduler setting learning '
                       'rate to %s.' % (self.batch_count + 1, lr))
 
-def supervisedPreProcessing(train,test,shape):#RGB (32,32,3) to (96,32)
+def supervisedPreProcessing(train,test,shape):
   timeSteps = shape[0]
   features = shape[1]
   train = train.map(lambda x,y: [((float(x) / 255.) - .5) * 2,y]) #x and x are normalized
@@ -116,7 +116,7 @@ def supervisedPreProcessing(train,test,shape):#RGB (32,32,3) to (96,32)
   test = test.map(lambda x,y: [tf.reshape(tf.transpose(x, perm=[2, 0, 1]), [timeSteps, features]), y]) # (32,32,3) to (96,32)
   return train, test
 
-def unsupervisedPreProcessing(train,test,shape):#RGB (32,32,3) to (96,32)
+def unsupervisedPreProcessing(train,test,shape):
   timeSteps = shape[0]
   features = shape[1]
   train = train.map(lambda image, label: (image, image)) 
@@ -132,61 +132,28 @@ def unsupervisedPreProcessing(train,test,shape):#RGB (32,32,3) to (96,32)
   test = test.map(lambda x,y: [tf.reshape(tf.transpose(x, perm=[2, 0, 1]), [timeSteps, features]), tf.reshape(tf.transpose(y, perm=[2, 0, 1]), [timeSteps, features])]) # (32,32,3) to (96,32)
   return train, test
 
-def create_supervised_dataset(dataset, shape, batch_size): #https://stackoverflow.com/questions/50666681/how-to-load-mnist-via-tensorflow-including-download
+def create_supervised_dataset(dataset, shape, batch_size):
       def gen():
         for X_train, y_train in tfds.as_numpy(dataset):
     
-          #print(X_train.shape, y_train.shape)
-          #print(X_train[0])
-          #def normalize_img(image, label):
-          #  """Normalizes images: `uint8` -> `float32`."""
-          #  image = ((image / 255.) - .5) * 2
-          #  return image, label
-    
-          #X_train, y_train = normalize_img(X_train, y_train)
-          #print(X_train[0,:,:,])
-          #X_train = X_train.transpose(0,3,1,2).reshape(X_train.shape[0],-1,X_train.shape[2]) #for (10k,96,32), for example
-          #X_train = X_train.transpose(2,0,1).reshape(-1,X_train.shape[1]) #for (96,32)
           yield X_train, y_train
       ds = tf.data.Dataset.from_generator(gen, (tf.float32, tf.int32), (shape, ())) # x and y
     
       return ds.batch(batch_size,drop_remainder=True).repeat()#
 
-def create_unsupervised_dataset(dataset, shape, batch_size): #https://stackoverflow.com/questions/50666681/how-to-load-mnist-via-tensorflow-including-download
+def create_unsupervised_dataset(dataset, shape, batch_size): 
   def gen():
     for X_train, y_train in tfds.as_numpy(dataset):
 
-      #print(X_train.shape, y_train.shape)
-      #print(X_train[0])
-      #def normalize_img(image, label):
-      #  """Normalizes images: `uint8` -> `float32`."""
-      #  image = ((image / 255.) - .5) * 2
-      #  return image, label
-
-      #X_train, y_train = normalize_img(X_train, y_train)
-      #print(X_train[0,:,:,])
-      #X_train = X_train.transpose(0,3,1,2).reshape(X_train.shape[0],-1,X_train.shape[2]) #for (10k,96,32), for example
-      #X_train = X_train.transpose(2,0,1).reshape(-1,X_train.shape[1]) #for (96,32)
       yield X_train, y_train
   ds = tf.data.Dataset.from_generator(gen, (tf.float32, tf.float32), (shape, shape)) # x and y
 
   return ds.batch(batch_size, drop_remainder=True).repeat()#
 
-def create_unsupervised_dataset_topredict(dataset, shape, batch_size): #https://stackoverflow.com/questions/50666681/how-to-load-mnist-via-tensorflow-including-download
+def create_unsupervised_dataset_topredict(dataset, shape, batch_size):
   def gen():
     for X_train in tfds.as_numpy(dataset):
 
-      #print(X_train.shape, y_train.shape)
-      #print(X_train[0])
-      #def normalize_img(image, label):
-      #  """Normalizes images: `uint8` -> `float32`."""
-      #  image = ((image / 255.) - .5) * 2
-      #  return image, label
-
-      #X_train, y_train = normalize_img(X_train, y_train)
-      #print(X_train[0,:,:,])
-      #X_train = X_train.transpose(0,3,1,2).reshape(X_train.shape[0],-1,X_train.shape[2]) #for (10k,96,32), for example
-      #X_train = X_train.transpose(2,0,1).reshape(-1,X_train.shape[1]) #for (96,32)
       yield X_train
   ds = tf.data.Dataset.from_generator(gen, (tf.float32), (shape)) # x and y
 
@@ -215,62 +182,20 @@ def supervised(train,
   #X_test = X_test.reshape((len(y_test),rows,features))
   
   for AmountTrueLab in setTrueLabels:
-  #if j <= 10:
-  #  AmountTrueLab = j*100
-  #else:
-  #  AmountTrueLab = (j-9)*1000
   
     print(AmountTrueLab)
     tf.keras.backend.clear_session()
 
-  #for j in range(numberTrueLabeles,20):
-  #  if j <= 10:
-  #    AmountTrueLab = j*100
-  #  else:
-  #    AmountTrueLab = (j-9)*1000
-    
-  #  print(AmountTrueLab)
-  
-    #Epochs = 1000
-    #datatrain = AmountTrueLab
-    #trainBATCH_SIZE =32
-    #testBATCH_SIZE = 512
     BUFFER_SIZE = 10000
     #LAYER = 3
     UNITS = 512
     #numExamTrain = AmountTrueLab
     
-    ######Data to train
-    #pretrain = tf.data.Dataset.from_tensor_slices((X_train[:50000],X_train[:50000])) # Slices of (299980, 20, 1) then 1(20,1), 2(20,1),...,299980(20, 1)
-    #pretrain = pretrain.cache().shuffle(BUFFER_SIZE).batch(BATCH_SIZE).repeat()
-    
-    #dataXtrain = X_train[:datatrain]
-    #dataytrain = y_train[:datatrain]
-    
-    #train = tf.data.Dataset.from_tensor_slices((dataXtrain, dataytrain))
-    #train = train.batch(trainBATCH_SIZE).repeat()
-    
-    #test = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-    #test = test.batch(testBATCH_SIZE).repeat()
     datatrain = train.take(AmountTrueLab)
     datatest = test
 
     sample_count = datatrain.cardinality().numpy()
     
-    #Using LEGW in function with few examples
-    #factor = LEGWFewExamples(sample_count)
-    #factor = 1
-    #batch_size = 32*factor
-    #warmup_epochs = 0.25*factor
-    #lr = round(0.001*(math.sqrt(factor)),4)
-
-    # Training batch size, set small value here for demonstration purpose.
-    #batch_size = batchSize*factor# each server has to have the batch size from LEGW
-
-    # Number of warmup epochs.
-    #warmup_epoch = warmupEpoch-1#-1 because epochs start with value 0 and so I will have 16 epochs exactly.
-    #warmup_epoch = massMethods.minWarmupEpochs(sample_count, batch_size, warmupEpoch)
-
     #lrm = lr#round(lr*(math.sqrt(factor)),4)
     batch_size, warmup_epoch, lrm = massMethods.supervisedLEGWautomaticScaled(sample_count)
     # Compute the number of warmup batches.
@@ -311,51 +236,30 @@ def supervised(train,
             #tf.keras.layers.Dense(28, activation='relu'),
             tf.keras.layers.Dense(numClasses,activation='softmax')])#25 for slmnist    
         
-        opt = tf.keras.optimizers.Adam(lrm)#RMSprop better than Adam. see CIFAR-10/tenTimes/semi-supervisedCIFAR-10AccuTenTimesRMSprop.csv file. first(165,250) for Adam and last for RMSprop(165,250)
+        opt = tf.keras.optimizers.Adam(lrm)
         lr_metric = get_lr_metric(opt)
         model.compile(optimizer=opt,
                       loss=tf.keras.losses.SparseCategoricalCrossentropy(), 
                       metrics=['acc', lr_metric])
-        
-        #model.layers[0].get_weights()
-        
-        #pretrainedModel = tf.keras.models.Sequential([
-        #    tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
-        #    tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
-        #    tf.keras.layers.LSTM(units=UNITS,return_sequences=True),
-        #    tf.keras.layers.Dense(features) #tested with tanh, sigmoid, linear and the better accu (41.10%) was reached without any func actv.
-        #])
-        #
-        ##pretrainedModel.summary()
-        #
-        #pretrainedModel.load_weights(mainDirect+pretrainfile+'.h5')
-        #
-        #pretrainedModel.layers[0].get_weights()
-        #
-        #model.layers[0].set_weights(pretrainedModel.layers[0].get_weights())
-        #model.layers[1].set_weights(pretrainedModel.layers[1].get_weights())
-        #model.layers[2].set_weights(pretrainedModel.layers[2].get_weights())
-        #model.layers[3].set_weights(pretrainedModel.layers[3].get_weights())
 
       cbks = [warm_up_lr,
                 tf.keras.callbacks.LearningRateScheduler(lambda epoch: (lrm)*(np.exp(-epoch/25))), #(1e-3)/(epoch+1) #0.001
                 #tf.keras.callbacks.TensorBoard(log_dir="logs/{}".format(time())),
                 tf.keras.callbacks.EarlyStopping(monitor='loss', mode='min', verbose=1),
                 tf.keras.callbacks.CSVLogger(mainDirect+'log_'+namefile+'.csv', append=True, separator=',')
-                ]#(write_graph=True)] # https://machinelearningmastery.com/how-to-stop-training-deep-neural-networks-at-the-right-time-using-early-stopping/
-      #model.summary()
+                ]
       
       stepsPerEpoch = math.floor(sample_count/batch_size)
       stepsTest = math.floor(numExamTest/batch_size)
       model.fit(train_dataset,epochs=Epochs, 
                             verbose=verb,
-                            steps_per_epoch=stepsPerEpoch,  #19 for 10k and 512bz, 3 for 1k and 256bz examples #58 for 60k (training data) entre 1024 (batch zise) = 58.59
+                            steps_per_epoch=stepsPerEpoch,  
                             validation_data=test_dataset,
-                            validation_steps=stepsTest, #9 for 10k (test data) entre 1024 (batchsize)
+                            validation_steps=stepsTest, 
                             callbacks=cbks
                 )
       
-      results = model.evaluate(x=test_dataset,  verbose=0, steps=stepsTest)#batch_size=testBATCH_SIZE,
+      results = model.evaluate(x=test_dataset,  verbose=0, steps=stepsTest)
       
       if i == 0:
         tenRepet = np.concatenate((tenRepet,AmountTrueLab), axis=None)
@@ -391,65 +295,20 @@ def semiSupervised(train,
   features = train.element_spec[0].shape[1]
   inputShape = (timeSteps,features)
   numExamTest = test.cardinality().numpy()
-  #X_train = X_train.reshape((len(y_train),rows,features))
-  #X_test = X_test.reshape((len(y_test),rows,features))
   
   for AmountTrueLab in setTrueLabels:
-  #if j <= 10:
-  #  AmountTrueLab = j*100
-  #else:
-  #  AmountTrueLab = (j-9)*1000
   
     print(AmountTrueLab)
     tf.keras.backend.clear_session()
 
-  #for j in range(numberTrueLabeles,20):
-  #  if j <= 10:
-  #    AmountTrueLab = j*100
-  #  else:
-  #    AmountTrueLab = (j-9)*1000
-    
-  #  print(AmountTrueLab)
-  
-    #Epochs = 1000
-    #datatrain = AmountTrueLab
-    #trainBATCH_SIZE =32
-    #testBATCH_SIZE = 512
     BUFFER_SIZE = 10000
     #LAYER = 3
     UNITS = 512
-    #numExamTrain = AmountTrueLab
-    
-    ######Data to train
-    #pretrain = tf.data.Dataset.from_tensor_slices((X_train[:50000],X_train[:50000])) # Slices of (299980, 20, 1) then 1(20,1), 2(20,1),...,299980(20, 1)
-    #pretrain = pretrain.cache().shuffle(BUFFER_SIZE).batch(BATCH_SIZE).repeat()
-    
-    #dataXtrain = X_train[:datatrain]
-    #dataytrain = y_train[:datatrain]
-    
-    #train = tf.data.Dataset.from_tensor_slices((dataXtrain, dataytrain))
-    #train = train.batch(trainBATCH_SIZE).repeat()
-    
-    #test = tf.data.Dataset.from_tensor_slices((X_test, y_test))
-    #test = test.batch(testBATCH_SIZE).repeat()
+
     datatrain = train.take(AmountTrueLab)
     datatest = test
 
     sample_count = datatrain.cardinality().numpy()
-    
-    #Using LEGW in function with few examples
-    #factor = LEGWFewExamples(sample_count)
-    #factor = 1
-    #batch_size = 32*factor
-    #warmup_epochs = 0.25*factor
-    #lr = round(0.001*(math.sqrt(factor)),4)
-
-    # Training batch size, set small value here for demonstration purpose.
-    #batch_size = batchSize*factor# each server has to have the batch size from LEGW
-
-    # Number of warmup epochs.
-    #warmup_epoch = warmupEpoch-1#-1 because epochs start with value 0 and so I will have 16 epochs exactly.
-    #warmup_epoch = massMethods.minWarmupEpochs(sample_count, batch_size, warmupEpoch)
 
     #lrm = lr#round(lr*(math.sqrt(factor)),4)
     batch_size, warmup_epoch, lrm = massMethods.semiSupervisedLEGWautomaticScaled(sample_count)
@@ -461,7 +320,6 @@ def semiSupervised(train,
     warmup_batches = math.floor(warmup_epoch * sample_count / batch_size)
      
     # Create the Learning rate scheduler.
-    #lr = 0.0080#(((16)**(1/2))*(1e-3)) #1e-3
     warm_up_lr = WarmUpLearningRateScheduler(warmup_batches, init_lr=lrm)
 
     options = tf.data.Options()
@@ -482,7 +340,7 @@ def semiSupervised(train,
                   return optimizer.learning_rate
               return lr
         
-        #accu test 95.3% Semi-supervised.
+        
         model = tf.keras.models.Sequential([
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
@@ -491,7 +349,7 @@ def semiSupervised(train,
             #tf.keras.layers.Dense(28, activation='relu'),
             tf.keras.layers.Dense(numClasses,activation='softmax')])#25 for slmnist    
         
-        opt = tf.keras.optimizers.Adam(lrm)#RMSprop better than Adam. see CIFAR-10/tenTimes/semi-supervisedCIFAR-10AccuTenTimesRMSprop.csv file. first(165,250) for Adam and last for RMSprop(165,250)
+        opt = tf.keras.optimizers.Adam(lrm)
         lr_metric = get_lr_metric(opt)
         model.compile(optimizer=opt,
                       loss=tf.keras.losses.SparseCategoricalCrossentropy(), 
@@ -522,16 +380,16 @@ def semiSupervised(train,
                 #tf.keras.callbacks.TensorBoard(log_dir="logs/{}".format(time())),
                 tf.keras.callbacks.EarlyStopping(monitor='loss', mode='min', verbose=1),
                 tf.keras.callbacks.CSVLogger(mainDirect+'log_'+namefile+'.csv', append=True, separator=',')
-                ]#(write_graph=True)] # https://machinelearningmastery.com/how-to-stop-training-deep-neural-networks-at-the-right-time-using-early-stopping/
+                ]#(write_graph=True)] 
       #model.summary()
       
       stepsPerEpoch = math.floor(sample_count/batch_size)
       stepsTest = math.floor(numExamTest/batch_size)
       model.fit(train_dataset,epochs=Epochs, 
                             verbose=verb,
-                            steps_per_epoch=stepsPerEpoch,  #19 for 10k and 512bz, 3 for 1k and 256bz examples #58 for 60k (training data) entre 1024 (batch zise) = 58.59
+                            steps_per_epoch=stepsPerEpoch,  
                             validation_data=test_dataset,
-                            validation_steps=stepsTest, #9 for 10k (test data) entre 1024 (batchsize)
+                            validation_steps=stepsTest, 
                             callbacks=cbks
                 )
       
@@ -580,7 +438,6 @@ def preTraining(train,
   warmup_batches = math.floor(warmup_epoch * sample_count / batch_size)
    
   # Create the Learning rate scheduler.
-  #lr = 0.0080#(((16)**(1/2))*(1e-3)) #1e-3
   warm_up_lr = WarmUpLearningRateScheduler(warmup_batches, init_lr=lr)
 
   options = tf.data.Options()
@@ -591,10 +448,6 @@ def preTraining(train,
 
   train_dataset = train_dataset0.with_options(options)
   test_dataset = test_dataset0.with_options(options)
-
-  #timeSteps = 96
-  #features = 32
-  #inputShape = (timeSteps,features)
   
   UNITS = 512
   
@@ -610,12 +463,11 @@ def preTraining(train,
       if L == 1:
         
         ## 1L, 2L o 3L
-        #Unsupervised model with 40.61% accu layer-wise procedure. ##This is the best unsupervised learning architecture.##
         model = tf.keras.models.Sequential([
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
            #tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
            #tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
-           tf.keras.layers.Dense(features) #tested with tanh, sigmoid, linear and the better accu (41.10%) was reached without any func actv.
+           tf.keras.layers.Dense(features)
         ])
       
       if L == 2:
@@ -626,39 +478,39 @@ def preTraining(train,
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
            #tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
-           tf.keras.layers.Dense(features) #tested with tanh, sigmoid, linear and the better accu (41.10%) was reached without any func actv.
+           tf.keras.layers.Dense(features) 
         ])
       
         pretrainedModel = tf.keras.models.Sequential([
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
             #tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
            #tf.keras.layers.LSTM(units=UNITS,return_sequences=True),
-           tf.keras.layers.Dense(features) #tested with tanh, sigmoid, linear and the better accu (41.10%) was reached without any func actv.
+           tf.keras.layers.Dense(features) 
         ])
       
       if L == 3:
         
         ## 1L, 2L o 3L
-        #Unsupervised model with 40.61% accu layer-wise procedure. ##This is the best unsupervised learning architecture.##
+        
         model = tf.keras.models.Sequential([
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
-           tf.keras.layers.Dense(features) #tested with tanh, sigmoid, linear and the better accu (41.10%) was reached without any func actv.
+           tf.keras.layers.Dense(features) 
         ])
       
         pretrainedModel = tf.keras.models.Sequential([
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
            #tf.keras.layers.LSTM(units=UNITS,return_sequences=True),
-           tf.keras.layers.Dense(features) #tested with tanh, sigmoid, linear and the better accu (41.10%) was reached without any func actv.
+           tf.keras.layers.Dense(features) 
         ])
       #Compile
       opt = tf.keras.optimizers.Adam(lr)
       lr_metric = get_lr_metric(opt)
       model.compile(optimizer=opt, 
                     loss=tf.keras.losses.MeanSquaredError(), 
-                    metrics=['accuracy',lr_metric]) # tf.keras.losses.MeanSquaredError() // tf.keras.losses.KLDivergence(reduction=tf.keras.losses.Reduction.NONE) // 'binary_crossentropy'
+                    metrics=['accuracy',lr_metric]) 
       #model.summary()
     
     cbks = [warm_up_lr,
@@ -666,7 +518,7 @@ def preTraining(train,
               #tf.keras.callbacks.TensorBoard(log_dir="logs/{}".format(time())),
               tf.keras.callbacks.EarlyStopping(monitor='loss', mode='min', verbose=1),
               tf.keras.callbacks.CSVLogger(mainDirect+'log_'+namefile+'.csv', append=True, separator=',')
-              ]#(write_graph=True)] # https://machinelearningmastery.com/how-to-stop-training-deep-neural-networks-at-the-right-time-using-early-stopping/
+              ]
     
     ##Si 1L 
       ##No load
@@ -693,24 +545,16 @@ def preTraining(train,
     stepsTest = math.floor(numExamTest/batch_size)
     model.fit(train_dataset,epochs=Epochs, 
                           verbose=1,
-                          steps_per_epoch=stepsPerEpoch,  #58 for 60k (training data) entre 1024 (batch zise) = 58.59
+                          steps_per_epoch=stepsPerEpoch,  
                           validation_data=test_dataset,
-                          validation_steps=stepsTest, #9 for 10k (test data) entre 1024 (batchsize)
+                          validation_steps=stepsTest, 
                           callbacks=cbks
               )
     
-    #https://www.tensorflow.org/guide/keras/save_and_serialize
+    
     model.save_weights(mainDirect+str(namefile)+'.h5')
     
-    #datamodel = model.evaluate( x=test, verbose=1, steps=stepsTest) #, batch_size=testBATCH_SIZE
-    #import csv
-    #csv.register_dialect("hashes", delimiter=",")
-    #f = open(mainDirect+'evaluation_'+str(namefile)+'.csv','a')
     
-    #with f:
-    #    #fieldnames = ['layer', 'units', 'epochsCv', 'AccuCv', 'epochsTrain', 'AccuTest']
-    #    writer = csv.writer(f, dialect="hashes")#,fieldnames=fieldnames)
-    #    writer.writerow(datamodel)
 #@tf.autograph.experimental.do_not_convert
 def transferUnlabToAug(unlabeled,
                         datatrain,
@@ -926,16 +770,6 @@ def selfTraining(train,
                 numClasses = 10,
                 Epochs = 50,
                 verb = 1):
-
-  #train = supTrain
-  ##test = test
-  #noLabeled = unlabeled
-  ##setTrueLabels = setTrueLabels
-  ##mainDirect,
-  ##strategy,
-  #numClasses = 10
-  #Epochs = 1
-  #verb = 1
   
   timeSteps = train.element_spec[0].shape[0]
   features = train.element_spec[0].shape[1]
@@ -977,7 +811,7 @@ def selfTraining(train,
             tf.keras.layers.LSTM(units=UNITS),
             tf.keras.layers.Dense(features),
             #tf.keras.layers.Dense(28, activation='relu'),
-            tf.keras.layers.Dense(numClasses,activation='softmax')])#25 for slmnist    
+            tf.keras.layers.Dense(numClasses,activation='softmax')])
         
         opt = tf.keras.optimizers.Adam(0.001)
         lr_metric = get_lr_metric(opt)
@@ -986,24 +820,6 @@ def selfTraining(train,
                       metrics=['accuracy', lr_metric])
         
         #model.layers[0].get_weights()
-        
-        #pretrainedModel = tf.keras.models.Sequential([
-        #    tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
-        #    tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
-        #    tf.keras.layers.LSTM(units=UNITS,return_sequences=True),
-        #    tf.keras.layers.Dense(features) #tested with tanh, sigmoid, linear and the better accu (41.10%) was reached without any func actv.
-        #])
-        #
-        ##pretrainedModel.summary()
-        #
-        #pretrainedModel.load_weights(mainDirect+pretrainfile+'.h5')
-        #
-        #pretrainedModel.layers[0].get_weights()
-        #
-        #model.layers[0].set_weights(pretrainedModel.layers[0].get_weights())
-        #model.layers[1].set_weights(pretrainedModel.layers[1].get_weights())
-        #model.layers[2].set_weights(pretrainedModel.layers[2].get_weights())
-        #model.layers[3].set_weights(pretrainedModel.layers[3].get_weights())
       
       unlabeled = noLabeled  
       
@@ -1067,15 +883,14 @@ def selfTraining(train,
         topredict_dataset0 = massMethods.create_unsupervised_dataset_topredict(unlabeled, inputShape, batch_size) #add train_dataset0
         topredict_dataset = topredict_dataset0.with_options(options)
         
-        tf.keras.backend.set_value(model.optimizer.lr, lrm)#https://stackoverflow.com/questions/47994638/keras-resume-training-with-different-learning-rate
+        tf.keras.backend.set_value(model.optimizer.lr, lrm)
         
         cbks = [warm_up_lr,
                   tf.keras.callbacks.LearningRateScheduler(lambda epoch: (lrm)*(np.exp(-epoch/25))), #(1e-3)/(epoch+1) #0.001
                   #tf.keras.callbacks.TensorBoard(log_dir="logs/{}".format(time())),
                   tf.keras.callbacks.EarlyStopping(monitor='loss', mode='min', verbose=1),
                   tf.keras.callbacks.CSVLogger(mainDirect+str(AmountTrueLab)+'/'+str(tenTimes)+'/'+str(sample_count)+'.csv', append=True, separator=',')
-                  ]#(write_graph=True)] # https://machinelearningmastery.com/how-to-stop-training-deep-neural-networks-at-the-right-time-using-early-stopping/
-        #model.summary()
+                  ]
         
         stepsPerEpoch = math.floor(sample_count/batch_size)
         stepsTest = math.floor(numExamTest/batch_size)
@@ -1084,9 +899,9 @@ def selfTraining(train,
         try:
           model.fit(train_dataset,epochs=Epochs, 
                               verbose=verb,
-                              steps_per_epoch=stepsPerEpoch,  #19 for 10k and 512bz, 3 for 1k and 256bz examples #58 for 60k (training data) entre 1024 (batch zise) = 58.59
+                              steps_per_epoch=stepsPerEpoch,  
                               validation_data=test_dataset,
-                              validation_steps=stepsTest, #9 for 10k (test data) entre 1024 (batchsize)
+                              validation_steps=stepsTest, 
                               callbacks=cbks
                   )
         except tf.errors.OutOfRangeError:
@@ -1170,16 +985,6 @@ def selfTrainingLayerWise(train,
                 numClasses = 10,
                 Epochs = 50,
                 verb = 1):
-
-  #train = supTrain
-  ##test = test
-  #noLabeled = unlabeled
-  ##setTrueLabels = setTrueLabels
-  ##mainDirect,
-  ##strategy,
-  #numClasses = 10
-  #Epochs = 1
-  #verb = 1
   
   timeSteps = train.element_spec[0].shape[0]
   features = train.element_spec[0].shape[1]
@@ -1235,7 +1040,7 @@ def selfTrainingLayerWise(train,
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True, input_shape=inputShape,dropout=0.0),
             tf.keras.layers.LSTM(units=UNITS, return_sequences=True),
             tf.keras.layers.LSTM(units=UNITS,return_sequences=True),
-            tf.keras.layers.Dense(features) #tested with tanh, sigmoid, linear and the better accu (41.10%) was reached without any func actv.
+            tf.keras.layers.Dense(features) 
         ])
         
         #pretrainedModel.summary()
@@ -1310,15 +1115,14 @@ def selfTrainingLayerWise(train,
         topredict_dataset0 = massMethods.create_unsupervised_dataset_topredict(unlabeled, inputShape, batch_size) #add train_dataset0
         topredict_dataset = topredict_dataset0.with_options(options)
         
-        tf.keras.backend.set_value(model.optimizer.lr, lrm)#https://stackoverflow.com/questions/47994638/keras-resume-training-with-different-learning-rate
+        tf.keras.backend.set_value(model.optimizer.lr, lrm)
         
         cbks = [warm_up_lr,
                   tf.keras.callbacks.LearningRateScheduler(lambda epoch: (lrm)*(np.exp(-epoch/25))), #(1e-3)/(epoch+1) #0.001
                   #tf.keras.callbacks.TensorBoard(log_dir="logs/{}".format(time())),
                   tf.keras.callbacks.EarlyStopping(monitor='loss', mode='min', verbose=1),
                   tf.keras.callbacks.CSVLogger(mainDirect+str(AmountTrueLab)+'/'+str(tenTimes)+'/'+str(sample_count)+'.csv', append=True, separator=',')
-                  ]#(write_graph=True)] # https://machinelearningmastery.com/how-to-stop-training-deep-neural-networks-at-the-right-time-using-early-stopping/
-        #model.summary()
+                  ]
         
         stepsPerEpoch = math.floor(sample_count/batch_size)
         stepsTest = math.floor(numExamTest/batch_size)
@@ -1327,9 +1131,9 @@ def selfTrainingLayerWise(train,
         try:
           model.fit(train_dataset,epochs=Epochs, 
                               verbose=verb,
-                              steps_per_epoch=stepsPerEpoch,  #19 for 10k and 512bz, 3 for 1k and 256bz examples #58 for 60k (training data) entre 1024 (batch zise) = 58.59
+                              steps_per_epoch=stepsPerEpoch,  
                               validation_data=test_dataset,
-                              validation_steps=stepsTest, #9 for 10k (test data) entre 1024 (batchsize)
+                              validation_steps=stepsTest, 
                               callbacks=cbks
                   )
         except tf.errors.OutOfRangeError:
