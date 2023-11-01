@@ -25,3 +25,9 @@ For data pre-processing, we utilized the *data* TensorFlow module, which include
 To enhance training efficiency, we employed two techniques: TensorFlow's Multi-worker strategy and the linear-epoch gradual-warmup epoch method. The former accelerates the training process by harnessing multiple GPUs across different servers, while the latter optimizes GPU memory efficiency through the use of larger batch sizes.
 
 <!-- should i put the info of setup each method? put references -->
+
+# Dataset configuration for experiments
+
+# Experiment design
+
+# Results for Quickdraw Bitmap dataset
