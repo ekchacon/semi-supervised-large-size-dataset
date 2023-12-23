@@ -1,4 +1,4 @@
-# semi-supervised-large-size-dataset
+# Semi-supervised-large-size-dataset
 
 We had presented a methodology to harness unlabeled data when few annotated dataset is available. The framework described in [Semi-supervised Classification](https://github.com/ekchacon/semi-supervised-regular-size-datasets.git) is tested with regular size benchmark datasets such as the MNIST and Fashion.
 
@@ -8,13 +8,13 @@ In this project, we extend our study by applying the previous developed machine 
 
 The Quickdraw bitmap dataset comprises grayscale images with dimensions of 28x28 pixels, encompassing 345 distinct drawing classes and a total of 50 million examples. For our experiments, we have selected a subset of 10 classes, containing 700,000 training examples and 25,000 test examples.
 
-# the aim of the project
+# The aim of the project
 
 <!-- This content will not appear in the rendered Markdown -->
 
 <!-- The main objective of this project is to defeat the challenges faced with data pre-processing, model feeding and the training time when working with large datasets, for example the Quickdraw dataset. In order to successfully do this we employed the tools TensorFlow library offers. -->
 
-This project primarily aims to address challenges related to data pre-processing and training time, particularly in the context of large datasets like the Quickdraw dataset. To achieve this goal, we have leveraged the capabilities provided by the TensorFlow library.
+This project primarily aims to address challenges related to data pre-processing and training time, particularly in the context of large datasets like the Quickdraw dataset. To achieve this goal, we have leveraged the capabilities provided by the TensorFlow library and other methodologies.
 
 <!-- For data pre-processing, the *data* TensorFlow module has a *Dataset class* that represents a potentially huge dataset. This class does not need to load the full dataset into memory but processes data in a streaming way avoiding ran out of GPU memory. We also used the TensorFlow Datasets to download and create a specific \textit{Dataset} instance (e.g. Quickdraw). -->
 
