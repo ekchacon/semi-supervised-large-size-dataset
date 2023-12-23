@@ -73,3 +73,11 @@ Our proposed method consistently outperforms the other methods in the range of 0
 
 <img width="770" alt="image" src="https://github.com/ekchacon/semi-supervised-large-size-dataset/assets/46211304/e7ab53f6-fe14-4d47-8996-ce191d628e45">
 
+# Discussion
+
+Real-world datasets, including seismic data  (Pratama, et al., [2022](https://recil.ensinolusofona.pt/bitstream/10437/9972/1/Television%20reshaped%20by%20big%20data.pdf)), medical records (Tiago, et al., [2022](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9893790)), and text corpora (Yang, et al., [2018](https://ieeexplore.ieee.org/abstract/document/8456138)), often comprise substantial amounts of unlabeled data alongside a limited number of labeled examples. To address the challenges associated with training neural networks on such datasets, we employed the extensive Quickdraw Bitmap dataset. A dataset is deemed large or massive when it encompasses approximately one million examples.
+
+In conjunction with the utilization of the multi-worker strategy to accelarate the training process across multiple GPUs, we implemented the LEGW method to optimize memory utilization by employing larger batch sizes. The application of the LEGW method necessitated specific configurations for pre-training and fine-tuning across the four learning techniques under evaluation.
+
+Our method demonstrates superior performance when applied to a large dataset across various dataset sizes. Notably, alternative methods fail to exhibit superior behavior compared to our method at any percentage of labeled dataset of Quickdraw. This consistent performance of the proposed method can be attributed to the extensive use of unlabeled data of the Quickdraw dataset during the pre-training stage, leading to enhanced generalization.
+
