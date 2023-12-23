@@ -1,4 +1,4 @@
-# Semi-supervised-large-size-dataset
+# Semi-supervised large-size dataset
 
 We had presented a methodology to harness unlabeled data when few annotated dataset is available. The framework described in [Semi-supervised Classification](https://github.com/ekchacon/semi-supervised-regular-size-datasets.git) is tested with regular size benchmark datasets such as the MNIST and Fashion.
 
