@@ -12,7 +12,7 @@ from mypackages.learningSort import massiveDataMethods as massMethods
 #Multiworker setting
 os.environ['TF_CONFIG'] = json.dumps({
     'cluster': {
-        'worker': ['132.247.11.16:20002', '132.247.11.91:20003']#workers are n48 and n44. And the same for all machines.
+        'worker': ['IP1:20002', 'IP2:20003']#workers are n48 and n44. And the same for all machines.
     },
     'task': {'type': 'worker', 'index': 1}#1 because it is the worker and different for each worker.
 })
